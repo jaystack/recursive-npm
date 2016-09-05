@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/jaystack/recursive-npm#readme",
   "dependencies": {
-    "figlet-cli": "^0.1.0"
+    "figlet-cli": "^0.1.0",
+    "yargs": "^5.0.0"
   }
 }

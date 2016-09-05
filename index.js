@@ -11,31 +11,52 @@
 const path = require('path');
 const fs = require('fs');
 const child_process = require('child_process');
+var argv = require('yargs')
+            .usage('Usage: $0 <path> [command]')
+            .array('command')
+            .alias('c', 'command')
+            .describe('command', 'script name(s)')
+            .example(`$0 ./ -command 'install -q' build`, `run 'npm install -q' and 'npm run build' commands recursively from './' root path`)
+            .help('h')
+            .alias('h', 'help')
+            .argv;
 
-const a1 = process.argv[2];
-const a2 = process.argv[3];
-const a3 = process.argv[4];
+// const a1 = process.argv[2];
+// const a2 = process.argv[3];
+// const a3 = process.argv[4];
 
-if (a1 === '-h') {
-  console.log();
-  console.log("This script runs npm install (and optionally typings install) in the base folder and its subfolders.");
-  console.log();
-  console.log("Argument 1 (optional): Start folder (default value: current folder)");
-  console.log("                       must be set if additional arguments used");
-  console.log("Argument 2 (optional): installMode");
-  console.log("Argument 3 (optional): '-t' -> perform typings install");
-  process.exit(0);
+// if (a1 === '-h') {
+//   console.log();
+//   console.log("This script runs npm install (and optionally typings install) in the base folder and its subfolders.");
+//   console.log();
+//   console.log("Argument 1 (optional): Start folder (default value: current folder)");
+//   console.log("                       must be set if additional arguments used");
+//   console.log("Argument 2 (optional): installMode");
+//   console.log("Argument 3 (optional): '-t' -> perform typings install");
+//   process.exit(0);
+// }
+
+
+
+// var rootFolder = a1 || process.cwd();
+// //const installMode = process.argv[3];
+// const installMode = (a2 !== null && a2 !== undefined && a2 !== '-t') ? a2 : '';
+// const doTypings = (a2 !== null && a2 !== undefined && a2 === '-t')
+//                   ? true
+//                   : (a3 !== null && a3 !== undefined && a3 === '-t')
+//                     ? true
+//                     : false;
+
+var rootFolder = process.cwd()
+if (argv._ && argv._.length>0) {
+   rootFolder = argv._[0]
 }
+if (!argv.command || (argv.command && argv.command.length < 1)) {
+  argv.command = ['install'];
+}
+console.log('******', rootFolder, argv.command)
 
-const rootFolder = a1 || process.cwd();
-//const installMode = process.argv[3];
-const installMode = (a2 !== null && a2 !== undefined && a2 !== '-t') ? a2 : '';
-const doTypings = (a2 !== null && a2 !== undefined && a2 === '-t')
-                  ? true
-                  : (a3 !== null && a3 !== undefined && a3 === '-t')
-                    ? true
-                    : false;
-
+//process.exit(0);
 
 const elapsed_time = function (noteBefore, noteAfter) {
   noteBefore = noteBefore || '';
@@ -58,11 +79,11 @@ console.log("Finished.");
 elapsed_time("Elapsed time: ", ".");
 
 
-function recursiveInstall(folder){
+function recursiveInstall(folder) {
 
-  if(isNpmPackage(folder)){
+  if(isNpmPackage(folder)) {
     performNpmInstall(folder);
-    if (doTypings) performTypingsInstall(folder);
+    //if (doTypings) performTypingsInstall(folder);
   }
 
   getSubfolders(folder).forEach(
@@ -72,39 +93,40 @@ function recursiveInstall(folder){
 }
 
 
-function isNpmPackage(folder){
-
+function isNpmPackage(folder) {
   try{
     fs.accessSync(path.join(folder, 'package.json'));
   }
-  catch(err){
+  catch(err) {
     return false;
   }
-
   return true;
-
 }
 
 
-function performNpmInstall(folder){
+function performNpmInstall(folder) {
 
-  const command = 'npm install' + ((installMode !== null && installMode !== undefined) ? ' ' + installMode : '');
-
-  const options = {
-    cwd: folder,
-    env: process.env,
-    stdio: 'inherit'
-  };
-
-  console.log("--------------------");
-    console.log("***", folder,"> ", command);
+  for (var i = 0; i < argv.command.length; i++) {
+    var cmd = argv.command[i];
+    if (cmd.indexOf('install') != 0) {
+      cmd = 'run ' + cmd;
+    }
+    cmd = 'npm ' + cmd;
+    //const command = 'npm install' + ((installMode !== null && installMode !== undefined) ? ' ' + installMode : '');
+    const options = {
+      cwd: folder,
+      env: process.env,
+      stdio: 'inherit'
+    };
     console.log("--------------------");
-  child_process.execSync(command, options);
-
+    console.log("***", folder,"> ", cmd);
+    console.log("--------------------");
+    child_process.execSync(cmd, options);
+  }
 }
 
 
-function performTypingsInstall(folder) {
+/*function performTypingsInstall(folder) {
 
   const command = 'npm run typings';
 
@@ -117,13 +139,11 @@ function performTypingsInstall(folder) {
   console.log(folder, "> ", command);
   child_process.execSync(command,options);
 
-}
+}*/
 
 
-function getSubfolders(folder){
-
+function getSubfolders(folder) {
   return fs.readdirSync(folder)
-    .filter(file => fs.statSync(path.join(folder, file)).isDirectory() && file !== 'node_modules' )
-    .map(subfolder => path.join(folder, subfolder));
-
+           .filter(file => fs.statSync(path.join(folder, file)).isDirectory() && file !== 'node_modules' )
+           .map(subfolder => path.join(folder, subfolder));
 }
