@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
   This script runs npm install (and optionally typings install) in the base folder and its subfolders.
 
