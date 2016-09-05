@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "npm-recursive-npm": "./index.js"
+    "recursive-npm": "./index.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/jaystack/recursive-npm/issues"
   },
-  "homepage": "https://github.com/jaystack/recursive-npm#readme"
+  "homepage": "https://github.com/jaystack/recursive-npm#readme",
+  "dependencies": {
+    "figlet-cli": "^0.1.0"
+  }
 }
