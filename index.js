@@ -106,7 +106,7 @@ function performNpmInstall(folder){
 
 function performTypingsInstall(folder) {
 
-  const command = 'typings install';
+  const command = 'npm run typings';
 
   const options = {
     cwd: folder,
