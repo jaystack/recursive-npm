@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "npm-recursive-npm": "./recursive-npm.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jaystack/recursive-npm.git"
