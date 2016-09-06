@@ -21,32 +21,6 @@ var argv = require('yargs')
             .alias('h', 'help')
             .argv;
 
-// const a1 = process.argv[2];
-// const a2 = process.argv[3];
-// const a3 = process.argv[4];
-
-// if (a1 === '-h') {
-//   console.log();
-//   console.log("This script runs npm install (and optionally typings install) in the base folder and its subfolders.");
-//   console.log();
-//   console.log("Argument 1 (optional): Start folder (default value: current folder)");
-//   console.log("                       must be set if additional arguments used");
-//   console.log("Argument 2 (optional): installMode");
-//   console.log("Argument 3 (optional): '-t' -> perform typings install");
-//   process.exit(0);
-// }
-
-
-
-// var rootFolder = a1 || process.cwd();
-// //const installMode = process.argv[3];
-// const installMode = (a2 !== null && a2 !== undefined && a2 !== '-t') ? a2 : '';
-// const doTypings = (a2 !== null && a2 !== undefined && a2 === '-t')
-//                   ? true
-//                   : (a3 !== null && a3 !== undefined && a3 === '-t')
-//                     ? true
-//                     : false;
-
 var rootFolder = process.cwd()
 if (argv._ && argv._.length>0) {
    rootFolder = argv._[0]
@@ -54,36 +28,14 @@ if (argv._ && argv._.length>0) {
 if (!argv.command || (argv.command && argv.command.length < 1)) {
   argv.command = ['install'];
 }
-console.log('******', rootFolder, argv.command)
-
-//process.exit(0);
-
-const elapsed_time = function (noteBefore, noteAfter) {
-  noteBefore = noteBefore || '';
-  noteAfter = noteAfter || '';
-  const precision = 3; // 3 decimal places
-  const elapsed = process.hrtime(start)[1] / 1000000; // divide by a million to get nano to milli
-  let sec = process.hrtime(start)[0];
-  const min = Math.floor(sec / 60);
-  sec = sec - min * 60;
-  console.log(noteBefore + min + " m, " + sec + " s, " + elapsed.toFixed(precision) + " ms" + noteAfter); // print message + time
-  start = process.hrtime(); // reset the timer
-}
-
-let start = process.hrtime();
-
 recursiveInstall(rootFolder);
 
-console.log();
 console.log("Finished.");
-elapsed_time("Elapsed time: ", ".");
-
 
 function recursiveInstall(folder) {
 
   if(isNpmPackage(folder)) {
     performNpmInstall(folder);
-    //if (doTypings) performTypingsInstall(folder);
   }
 
   getSubfolders(folder).forEach(
@@ -91,7 +43,6 @@ function recursiveInstall(folder) {
   );
 
 }
-
 
 function isNpmPackage(folder) {
   try{
@@ -112,7 +63,6 @@ function performNpmInstall(folder) {
       cmd = 'run ' + cmd;
     }
     cmd = 'npm ' + cmd;
-    //const command = 'npm install' + ((installMode !== null && installMode !== undefined) ? ' ' + installMode : '');
     const options = {
       cwd: folder,
       env: process.env,
@@ -124,23 +74,6 @@ function performNpmInstall(folder) {
     child_process.execSync(cmd, options);
   }
 }
-
-
-/*function performTypingsInstall(folder) {
-
-  const command = 'npm run typings';
-
-  const options = {
-    cwd: folder,
-    env: process.env,
-    stdio: 'inherit'
-  };
-
-  console.log(folder, "> ", command);
-  child_process.execSync(command,options);
-
-}*/
-
 
 function getSubfolders(folder) {
   return fs.readdirSync(folder)
